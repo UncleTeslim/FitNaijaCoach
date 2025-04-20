@@ -1,23 +1,24 @@
-# Use official Python image
+# Use slim Python image for smaller size
 FROM python:3.9.21-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies early to leverage Docker caching
+# Install pip dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy app files
+# Copy app code
 COPY . .
 
-# Expose default Streamlit port
-EXPOSE 8501
-
-# Streamlit-specific: Disable telemetry and use headless mode
+# Set environment variables
 ENV STREAMLIT_TELEMETRY_ENABLED=false \
-    STREAMLIT_HEADLESS=true
+    STREAMLIT_HEADLESS=true \
+    OPENAI_API_KEY=${OPENAI_API_KEY}
 
-# Start Streamlit app
-CMD ["run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+# Expose the correct port (match your app)
+EXPOSE 8080
+
+# Start Streamlit
+CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.enableCORS=false"]
