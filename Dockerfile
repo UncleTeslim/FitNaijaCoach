@@ -21,4 +21,4 @@ ENV STREAMLIT_TELEMETRY_ENABLED=false \
 EXPOSE 8501
 
 # Start Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+CMD ["streamlit", "run", "app.py", "--server.port=7860", "--server.enableCORS=false"]
