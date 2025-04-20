@@ -91,7 +91,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 import os
 import gradio as gr
-
+from dotenv import load_dotenv
 from langchain_community.cache import InMemoryCache
 from langchain.globals import set_llm_cache
 
@@ -99,6 +99,8 @@ from langchain.globals import set_llm_cache
 set_llm_cache(InMemoryCache())
 
 # Retrieve OpenAI API key from environment variables
+
+load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY is not set!")
