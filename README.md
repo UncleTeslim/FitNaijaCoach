@@ -1,14 +1,3 @@
----
-title: Naijafitchat
-emoji: 💬
-colorFrom: yellow
-colorTo: purple
-sdk: gradio
-sdk_version: 5.0.1
-app_file: app.py
-pinned: false
-license: mit
-short_description: A culturally-aware AI fitness assistant built for Nigerians.
----
+# FitNaijaCoach
 
-An example chatbot using [Gradio](https://gradio.app), [`huggingface_hub`](https://huggingface.co/docs/huggingface_hub/v0.22.2/en/index), and the [Hugging Face Inference API](https://huggingface.co/docs/api-inference/index).
+A culturally-aware AI fitness assistant built for Nigerians. Provides personalized workout plans (home &amp; gym) and diet suggestions focused on local meals, tailored for goals like weight loss, weight gain, or muscle building. Doesn't respond to non-fitness queries.
