@@ -20,4 +20,4 @@ ENV STREAMLIT_TELEMETRY_ENABLED=false \
     STREAMLIT_HEADLESS=true
 
 # Start Streamlit app
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+CMD ["run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
