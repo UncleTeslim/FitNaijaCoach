@@ -1,6 +1,6 @@
 # 🇳🇬 Naija Fitness Coach 🏋️‍♂️
 
-A personalized AI fitness assistant designed to help users across Nigeria (and beyond) create home workout plans, meal plans, and stay consistent with their health journey — powered by cutting-edge retrieval-augmented generation (RAG) and natural language processing (NLP).
+A personalized AI fitness assistant designed to help users across Nigeria (and beyond) create home workout plans, meal plans, and stay consistent with their health journey — powered by prompt engineering and natural language processing (NLP).
 
 ![Naija Fitness Coach](https://res.cloudinary.com/uncleteslim/image/upload/v1745347704/logo_zx2nts.png)
 
@@ -11,7 +11,7 @@ A personalized AI fitness assistant designed to help users across Nigeria (and b
 - 🧠 **AI-Powered Chatbot**: Chat with your fitness coach anytime.
 - 🍲 **Personalized Meal Plans**: Based on fitness goals and lifestyle.
 - 🏠 **Home Workouts**: Plans tailored to your body type, schedule, and equipment.
-- 📚 **RAG-Powered Intelligence**: Context-aware answers based on your own data.
+- 📚 **Prompt-Powered Intelligence**: Context-aware answers based on your own data.
 - 📱 **Mobile-Friendly UI**: Designed for easy use across all devices.
 - 🎥 **Landing Page Video**: Quick motivational preview to engage users.
 
