@@ -1,59 +1,43 @@
-from langchain.prompts import ChatPromptTemplate
-from langchain.prompts import MessagesPlaceholder, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-# from langchain_community.chat_models import ChatOpenAI
+from src.prompt import *
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.runnables import chain
+from langchain_core.messages import HumanMessage, SystemMessage, BaseMessage, AIMessage
+from langchain_core.runnables import chain, RunnableConfig
 import os
 import gradio as gr
 from dotenv import load_dotenv
 from langchain_community.cache import InMemoryCache
 from langchain.globals import set_llm_cache
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode
+from typing import Dict, List, Optional, TypedDict, Any
+
 
 set_llm_cache(InMemoryCache())
 
 load_dotenv()
 
+class ChatState
+
+
+
+
+
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-def load_context(file_path):
-    with open(file_path, 'r') as file:
-        return file.read()
-
-context_file = "fit.md"
-context = load_context(context_file)
-# system_prompt_file = "system.md"
-# system_prompt = load_context(system_prompt_file)
-
-system_prompt = """You're FitNaijaCoach, a Nigerian fitness expert. ONLY answer fitness/nutrition questions. Adapt responses to the user's goal:
-
-- Lose weight: Focus on cardio, portion control, low-calorie foods, light strength.
-- Gain weight: Emphasize nutrient-dense foods, moderate strength, more meals.
-- Build muscle: Prioritize strength training, progressive overload, protein, rest.
-  Suggest both home and gym workouts unless specified. Use mostly (80%) realistic Nigerian meals. Consider body types, habits, lifestyle, climate. Be clear and empathetic.
-  
-Focus 80% of your food suggestions on realistic Nigerian meals using common
-ingredients (e.g., beans, yam, eba, plantain, moi moi, okra, catfish, turkey, eggs).
-Only infuse 20% Western meal ideas (e.g., oats, smoothies, Greek yogurt, chicken salad, quinoa)
-where appropriate, or if helpful for the user's fitness goal. Remind user of portion control and moderation when necessary.
-  
-Consider Nigerian body types, cultural habits, daily lifestyle (e.g., access to fresh markets,
-busy work-life), and climate. Speak clearly, practically, and empathetically..
-  """
-
-
-
-
 prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt + "\n\n Use the following information to answer the user's questions:\n\n{context}"),
+    ("system", system_prompt + "\n\n Use the following information to answer the user's questions:\n\n"),
     MessagesPlaceholder(variable_name="messages") 
 ])
 
 
 llm = ChatOpenAI(
-    model="gpt-3.5-turbo",
-    temperature=0.2,
+    model="gpt-4.1-nano",
+    openai_api_key=OPENAI_API_KEY,
+    temperature=1.0,
     timeout=None,
     max_retries=2,
     max_tokens = 1000,
@@ -67,10 +51,26 @@ chain = prompt | llm
 # response = chain.invoke({"context": context, "messages": [message]})
 # print(response.content)
 
-def respond(user_message):
+# def respond(user_message):
+#     message = HumanMessage(content=user_message)
+#     response = chain.invoke({"messages": [message]})
+#     return response.content
+
+
+def respond(state:MessagesState, user_message):
     message = HumanMessage(content=user_message)
-    response = chain.invoke({"context": context, "messages": [message]})
+    state = workflow.run(state, message)
+    response = chain.invoke({"messages": [state]})
     return response.content
+
+
+# Define the node and edge
+workflow.add_node("model", respond)
+workflow.add_edge(START, "model")
+
+
+memory = MemorySaver()
+app = workflow.compile(checkpointer=memory)
 
 iface = gr.Interface(
     fn=respond,
