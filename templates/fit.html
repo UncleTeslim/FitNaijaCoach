@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fitness Coach Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      header {
+        background-color: #2e8b57;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+      }
+
+      header img {
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      header a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background-color: #fff;
+      }
+
+      .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+
+      .user {
+        background-color: #d4edda;
+        align-self: flex-end;
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .bot {
+        background-color: #d1ecf1;
+        align-self: flex-start;
+        text-align: left;
+        margin-right: auto;
+      }
+
+      #inputSection {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background-color: #f1f1f1;
+        position: sticky;
+        bottom: 0;
+      }
+
+      #userInput {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-left: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #2e8b57;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button:hover {
+        background-color: #246b45;
+      }
+
+      #loading {
+        display: none;
+        margin-top: 10px;
+        text-align: center;
+        color: #888;
+        font-style: italic;
+
+        .timestamp {
+          font-size: 0.75em;
+          color: #888;
+          margin-top: 4px;
+          display: block;
+          text-align: right;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <img
+        src="https://res.cloudinary.com/uncleteslim/image/upload/v1745347704/logo_zx2nts.png"
+        alt="Coach Avatar"
+      />
+      <h3>Naija Fitness Coach</h3>
+      <a href="/">Home</a>
+    </header>
+
+    <div id="chat"></div>
+
+    <div id="loading">Coach is thinking<span class="dots">...</span></div>
+
+    <div id="inputSection">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Ask your fitness question..."
+      />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+  </body>
+</html>

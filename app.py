@@ -1,164 +1,91 @@
-from src.prompt import *
+from flask import Flask, render_template, request, jsonify, make_response
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage, BaseMessage, AIMessage
-from langchain_core.runnables import chain, RunnableConfig
-import os
-import gradio as gr
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 from dotenv import load_dotenv
 from langchain_community.cache import InMemoryCache
 from langchain.globals import set_llm_cache
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, MessagesState, StateGraph
-from langgraph.prebuilt import ToolNode
-from typing import Dict, List, Optional, TypedDict, Any
+from langgraph.graph import START, END, MessagesState, StateGraph
+from typing import Dict
+import uuid
+import os
+from src.prompt import *
 
-
+# Set up caching and environment
 set_llm_cache(InMemoryCache())
-
 load_dotenv()
-
-class ChatState
-
-
-
-
-
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Initialize Flask app
+app = Flask(__name__)
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", system_prompt + "\n\n Use the following information to answer the user's questions:\n\n"),
-    MessagesPlaceholder(variable_name="messages") 
-])
-
-
+# LangChain LLM setup
 llm = ChatOpenAI(
     model="gpt-4.1-nano",
     openai_api_key=OPENAI_API_KEY,
     temperature=1.0,
     timeout=None,
     max_retries=2,
-    max_tokens = 1000,
-    # other params...
+    max_tokens=1000,
 )
 
 
-chain = prompt | llm
 
-# message = HumanMessage(content="How do i get fit as a 30 year old man? suggest workout routines and food plan")
-# response = chain.invoke({"context": context, "messages": [message]})
-# print(response.content)
+# Create LangGraph workflow
+graph = StateGraph(state_schema=MessagesState)
 
-# def respond(user_message):
-#     message = HumanMessage(content=user_message)
-#     response = chain.invoke({"messages": [message]})
-#     return response.content
+def call_model(state: MessagesState) -> Dict:
+    system_msg = SystemMessage(content=system_prompt)
+    messages = [system_msg] + state["messages"]
+    response = llm.invoke(messages)
+    return {"messages": [response]}
 
-
-def respond(state:MessagesState, user_message):
-    message = HumanMessage(content=user_message)
-    state = workflow.run(state, message)
-    response = chain.invoke({"messages": [state]})
-    return response.content
-
-
-# Define the node and edge
-workflow.add_node("model", respond)
-workflow.add_edge(START, "model")
-
+graph.add_node("model", call_model)
+graph.add_edge(START, "model")
+graph.add_edge("model", END)
 
 memory = MemorySaver()
-app = workflow.compile(checkpointer=memory)
+workflow = graph.compile(checkpointer=memory)
 
-iface = gr.Interface(
-    fn=respond,
-    inputs=[gr.Textbox(label="User Message")],
-    outputs=gr.Textbox(label="Response"),
-    title="FitNaijaCoach",
-    description="Ask questions about fitness and get personalized responses.",
-    theme="default"
-)
+# Session manager
+user_sessions = {}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/fit')
+def fitness():
+    return render_template('fit.html')
 
 
-if __name__ == "__main__":
-    iface.launch(share=True, debug=True, server_port=7860)
-                   
+@app.route('/get_response', methods=['POST'])
+def get_response():
+    user_message = request.json.get("message")
+    session_id = request.cookies.get('session_id')
+    if not session_id:
+        session_id = str(uuid.uuid4())
 
-# from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-# from langchain_openai import ChatOpenAI
-# from langchain_core.messages import HumanMessage
-# import os
-# import gradio as gr
-# from dotenv import load_dotenv
-# from langchain_community.cache import InMemoryCache
-# from langchain.globals import set_llm_cache
+    user_sessions.setdefault(session_id, [])  # Create if not exists
+    user_sessions[session_id].append(HumanMessage(content=user_message))
 
-# # Set cache
-# set_llm_cache(InMemoryCache())
+    try:
+        response = workflow.invoke(
+            {"messages": user_sessions[session_id]},
+            config={"configurable": {"thread_id": session_id}}
+        )
+        bot_reply = response["messages"][-1]
+        user_sessions[session_id].append(bot_reply)
 
-# # Retrieve OpenAI API key from environment variables
+        res = make_response(jsonify({'response': bot_reply.content}))
+        res.set_cookie("session_id", session_id)
+        return res
 
-# load_dotenv()
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# if not OPENAI_API_KEY:
-#     raise ValueError("OPENAI_API_KEY is not set!")
+    except Exception as e:
+        return jsonify({'response': f"Error: {str(e)}"}), 500
 
-# # Load context for the model
-# def load_context(file_path):
-#     with open(file_path, 'r') as file:
-#         return file.read()
-
-# context_file = "fit.md"
-# context = load_context(context_file)
-
-# # System message for the assistant
-# system_prompt = """You're FitNaijaCoach, a Nigerian fitness expert. ONLY answer fitness/nutrition questions. Adapt responses to the user's goal:
-# - Lose weight: Focus on cardio, portion control, low-calorie foods, light strength.
-# - Gain weight: Emphasize nutrient-dense foods, moderate strength, more meals.
-# - Build muscle: Prioritize strength training, progressive overload, protein, rest.
-# Focus 80% of your food suggestions on realistic Nigerian meals using common ingredients (e.g., beans, yam, eba, plantain, moi moi, okra, catfish, turkey, eggs).
-# Remind user of portion control and moderation when necessary.
-# """
-
-# # Build prompt template
-# prompt = ChatPromptTemplate.from_messages([
-#     ("system", system_prompt + "\n\n Use the following information to answer the user's questions:\n\n{context}"),
-#     MessagesPlaceholder(variable_name="messages")
-# ])
-
-# # Initialize the LLM
-# llm = ChatOpenAI(
-#     model="gpt-3.5-turbo",
-#     temperature=0.2,
-#     timeout=None,
-#     max_retries=2,
-#     max_tokens=1000,
-# )
-
-# # Create the chain
-# chain = prompt | llm
-
-# # Function to respond to user messages
-# def respond(user_message):
-#     try:
-#         message = HumanMessage(content=user_message)
-#         response = chain.invoke({"context": context, "messages": [message]})
-#         return response.content
-#     except Exception as e:
-#         return f"Error: {str(e)}"
-
-# # Gradio interface setup
-# iface = gr.Interface(
-#     fn=respond,
-#     inputs=[gr.Textbox(label="User Message")],
-#     outputs=gr.Textbox(label="Response"),
-#     title="FitNaijaCoach",
-#     description="Ask questions about fitness and get personalized responses.",
-#     theme="default"
-# )
-
-# # Run the app
-# if __name__ == "__main__":
-#     iface.launch(debug=True, server_port=8501)
+if __name__ == '__main__':
+    app.run(debug=True, port=7860)
