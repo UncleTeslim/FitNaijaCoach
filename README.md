@@ -29,8 +29,7 @@ A personalized AI fitness assistant designed to help users across Nigeria (and b
 
 ## 🚀 Live Demo
 
-👉 [Click here to try it live](https://your-app-on-render.com)  
-_(Replace with your actual Render link)_
+👉 [Click here to try it live](https://fitnaijacoach.onrender.com/)
 
 ---
 
