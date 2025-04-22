@@ -4,7 +4,7 @@
 # Ignore Python cache files
 __pycache__/
 
-FitNaijaCoach
+app_copy.py
 *.pyc
 
 # Ignore Jupyter Notebook checkpoints

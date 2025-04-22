@@ -19,10 +19,10 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Initialize Flask app
+
 app = Flask(__name__)
 
-# LangChain LLM setup
+
 llm = ChatOpenAI(
     model="gpt-4.1-nano",
     openai_api_key=OPENAI_API_KEY,
@@ -87,5 +87,6 @@ def get_response():
     except Exception as e:
         return jsonify({'response': f"Error: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=7860)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 7860)))
+
