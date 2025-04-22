@@ -9,3 +9,5 @@ app_copy.py
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+Dockerfile
